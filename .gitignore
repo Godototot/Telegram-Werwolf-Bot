@@ -128,5 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-#save_output
+# pycharm stuff
+.idea
+
+# save_output
 save.txt
