@@ -129,7 +129,7 @@ dmypy.json
 .pyre/
 
 # pycharm stuff
-.idea
+.idea/
 
 # save_output
 save.txt
