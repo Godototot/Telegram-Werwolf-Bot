@@ -56,7 +56,7 @@ def start_join(update, context):  # starts the joining-phase
             global gamechat_id
             if gamechat_id is None:
                 gamechat_id = update.effective_chat.id
-                with open('save.txt', 'a') as savetxt:
+                with open('werwolf.save', 'a') as savetxt:
                     savetxt.write(str(gamechat_id) + '\n')
             update.effective_chat.send_message(text=
                                                "Joining Phase initiated. \n You can join the game now by writing me (the bot) via private chat!"
@@ -96,7 +96,7 @@ def n_join(update, context):  # let's the narrator join as such
                 '/reset'
             )
             logger.info(update.message.from_user.name + " is now the narrator")
-            with open('save.txt', 'w') as savetxt:
+            with open('werwolf.save', 'w') as savetxt:
                 savetxt.write(str(narrator_id) + '\n')
         else:
             update.effective_chat.send_message("There is already a narrator")
@@ -211,7 +211,7 @@ def distr_roles(update, context):  # distributes the roles to the players
                         o += " to " + player.name
                         logger.info(o)
                     for player in playerlist_alive:
-                        with open('save.txt', 'a') as savetxt:
+                        with open('werwolf.save', 'a') as savetxt:
                             savetxt.write("a," + player.print() + '\n')
                     update.effective_chat.send_message(
                         "Roles have been distributed. Everyone should know their role now.")
@@ -333,11 +333,11 @@ def kill(update, context):  # Command for narrator to kill a player
 
                 # changing save-file
                 new_text = ""
-                with open('save.txt', 'r') as savetxt:
+                with open('werwolf.save', 'r') as savetxt:
                     for line in savetxt:
                         new_line = line.replace("a," + str(player.chat_id), "d," + str(player.chat_id))
                         new_text += new_line
-                with open('save.txt', 'w') as savetxt:
+                with open('werwolf.save', 'w') as savetxt:
                     savetxt.write(new_text)
 
                 playerlist_dead.append(player)
@@ -371,7 +371,7 @@ def reset(update, context):
             context.bot.restrict_chat_member(gamechat_id, player.id,
                                              ChatPermissions(can_send_messages=True, can_send_media_messages=True,
                                                              can_send_other_messages=True))
-        open('save.txt', 'w').close()
+        open('werwolf.save', 'w').close()
         gamechat_id = None
         global narrator_id
         narrator_id = None
