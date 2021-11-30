@@ -4,7 +4,9 @@ A telegram bot that assists the narrator of a game of Werwolf.
 ## Table of Content
 * [Goal](#goal)
 * [Technologies](#technologies)
-* [Bot Key](#bot-key)
+* [Using the Bot](#using-the-bot)
+  * [Bot Key](#bot-key)
+  * [Permissions](#permissions)
 * [Commands](#commands)
   * [General](#general)
   * [Narrator](#narrator)
@@ -21,12 +23,16 @@ with python-telegram-bot 13.8.1
 with python-dotenv 0.19.2
 
 
-## Bot Key
+## Using the Bot
+
+### Bot Key
 The unique key for the telegram bot is hidden in a personal '.env'-file.
 To use the code with your own bot, create this file and write:
 
 <em>BOT_KEY='key'</em>
 
+### Permissions
+To work properly the bot has to be an Admin in the group he is added to. 
 
 
 ## Commands
