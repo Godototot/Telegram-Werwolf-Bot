@@ -22,7 +22,7 @@ with python-dotenv 0.19.2
 
 
 ## Bot Key
-The unique key for the telegram is hidden in a personal '.env'-file.
+The unique key for the telegram bot is hidden in a personal '.env'-file.
 To use the code with your own bot, create this file and write:
 
 <em>BOT_KEY='key'</em>
