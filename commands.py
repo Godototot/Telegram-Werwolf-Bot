@@ -159,7 +159,7 @@ def join_cancel(update, context) -> int:
     return ConversationHandler.END
 
 
-def list_players(update, context):  # lists all living and dead players and roles
+def list_players(update, context):  # lists all living and dead players
     players_out = "Alive: \n"
     for player in playerlist_alive:
         players_out += player.name + '\n'

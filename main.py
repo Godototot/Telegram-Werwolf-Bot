@@ -17,11 +17,20 @@ def main():
     updater = Updater(os.environ.get("BOT_KEY"), use_context=True)
     dispatcher = updater.dispatcher
 
-    # read in save.txt in case the bot did shut down
+
+
+    setup_handlers(dispatcher)
+    updater.start_polling()
+
+    updater.idle()
+
+
+def load_save_file(): # read in save.txt in case the bot shut down
     global gamechat_id
     global narrator_id
-    if exists('save.txt'):
-        with open('save.txt', 'r') as savetxt:
+
+    if exists('werwolf.save'):
+        with open('werwolf.save', 'r') as savetxt:
             lines = savetxt.readlines()
             for l in lines:
                 l = l.replace('\n', '')
@@ -45,13 +54,11 @@ def main():
                         playerlist_dead.append(p)
                         logger.info("Added " + p.name + " back to the game dead.")
     else:
-        open('save.txt', 'x')
+        open('werwolf.save', 'x')
         logger.info("Created save file")
 
-    setup_handlers(dispatcher)
-    updater.start_polling()
 
-    updater.idle()
+
 
 
 def setup_handlers(dispatcher):
