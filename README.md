@@ -18,6 +18,7 @@ The goal of this bot is to take away the boring and tiresome work that comes wit
 Project is created with:
 Python: 3.8.10
 with python-telegram-bot 13.8.1
+with python-dotenv 0.19.2
 
 
 ## Bot Key
