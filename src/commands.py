@@ -2,7 +2,7 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatPermissions
 from telegram.ext import ConversationHandler
 import random
 import logging
-import Player
+from Player import *
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -123,7 +123,7 @@ def join_name(update, context) -> int:
             update.effective_chat.send_message(
                 text="Sorry there is already a player with this name. Please enter a different name:")
             return 0
-    playerlist_alive.append(Player(update.effective_chat.id, update.message.from_user.id, input_name))
+    playerlist_alive.append(Player(update.effective_chat.id, update.message.from_user.id, input_name, None))
     update.effective_chat.send_message(
         text="The name you entered is '" + playerlist_alive[-1].name + "'.\n Do you wanna keep that? (yes/no).",
         reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))

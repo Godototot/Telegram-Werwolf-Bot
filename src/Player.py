@@ -1,9 +1,10 @@
 class Player:
-    def __init__(self, chat_id, player_id, player_name):
+
+    def __init__(self, chat_id, player_id, player_name, role):
         self.chat_id = chat_id
         self.id = player_id
         self.name = player_name
-        self.role = None
+        self.role = role
         self.special_role = None
         self.vote = None
 

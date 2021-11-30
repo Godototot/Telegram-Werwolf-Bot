@@ -26,36 +26,36 @@ def load_save_file(): # read in save.txt in case the bot shut down
     global gamechat_id
     global narrator_id
 
-    if exists('saveFiles/werwolf.save'):
-        logger.info("Savefile exists")
-        with open('saveFiles/werwolf.save', 'r') as savetxt:
-            lines = savetxt.readlines()
-            for l in lines:
-                l = l.replace('\n', '')
-            for i in range(len(lines)):
-                if i == 0:
-                    narrator_id = int(lines[i])
-                    logger.info("Added narrator again")
-                elif i == 1:
-                    gamechat_id = int(lines[i])
-                    logger.info("Added gamechat again")
-                else:
-                    cut_line = lines[i].split(',')
-                    p = Player(int(cut_line[1]), int(cut_line[2]), cut_line[3])
-                    p.role = cut_line[4]
-                    if len(cut_line) > 5:
-                        p.special_role = cut_line[5]
-                    if cut_line[0] == 'a':
-                        playerlist_alive.append(p)
-                        logger.info("Added " + p.name + " back to the game alive.")
-                    else:
-                        playerlist_dead.append(p)
-                        logger.info("Added " + p.name + " back to the game dead.")
-    else:
+    if not exists('saveFiles/werwolf.save'):
+        if not exists('saveFiles'):
+            os.mkdir("saveFiles")
         open('saveFiles/werwolf.save', 'x')
         logger.info("Created save file")
+        return
 
-
+    logger.info("Savefile exists")
+    with open('saveFiles/werwolf.save', 'r') as savetxt:
+        lines = savetxt.readlines()
+    for l in lines:
+        l = l.replace('\n', '')
+    for i in range(len(lines)):
+        if i == 0:
+            narrator_id = int(lines[i])
+            logger.info("Added narrator again")
+        elif i == 1:
+            gamechat_id = int(lines[i])
+            logger.info("Added gamechat again")
+        else:
+            cut_line = lines[i].split(',')
+            p = Player(int(cut_line[1]), int(cut_line[2]), cut_line[3], cut_line[4])
+            if len(cut_line) > 5:
+                p.special_role = cut_line[5]
+            if cut_line[0] == 'a':
+                playerlist_alive.append(p)
+                logger.info("Added " + p.name + " back to the game alive.")
+            else:
+                playerlist_dead.append(p)
+                logger.info("Added " + p.name + " back to the game dead.")
 
 
 
