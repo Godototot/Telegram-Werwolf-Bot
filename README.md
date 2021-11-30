@@ -23,7 +23,7 @@ with python-dotenv 0.19.2
 
 ## Bot Key
 The unique key for the telegram bot is hidden in a personal '.env'-file.
-To use the code with your own bot, create this file and write:
+To use the code with your own bot, create this file inside the config folder and write:
 
 <em>BOT_KEY='key'</em>
 
@@ -45,7 +45,7 @@ To use the code with your own bot, create this file and write:
   <li><strong>distr_roles</strong> : can be executed after joining phase has ended. distributes the (special) roles from the txt-files to all players</li>
   <li><strong>vote [name1][opt name2][opt name 3]</strong> : starts the voting process. The bot writes each player in PC and let's them choose one from the names through custom keyboard</li>
   <li><strong>results</strong> : ends the voting process and returns the result in the group chat</li>
-  <li<strong>kill [name]</strong> : changes the players state to dead and removes their right to write in the group chat</li>
+  <li><strong>kill [name]</strong> : changes the players state to dead and removes their right to write in the group chat</li>
   <li><strong>good morning</strong> : gives all alive players the rights to write in the group chat</li>
   <li><strong>good night</strong> : removes every players rights to write in the group chat</li>
   <li><strong>reset</strong> : deletes all information, including the narrators id</li>
