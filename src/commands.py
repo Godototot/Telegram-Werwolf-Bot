@@ -17,6 +17,21 @@ accused = []  # Liste der angeklagten Spieler bei der Abstimmung
 vote_process = 0  # keeping track of vote process
 
 
+def set_narrator_id(n_id):
+    global narrator_id
+    narrator_id = n_id
+
+
+def set_gamechat_id(g_id):
+    global gamechat_id
+    gamechat_id = g_id
+
+
+def set_joining_again():
+    global joining
+    joining = True
+
+
 def check_for_group(update) -> bool:  # can be used to check if the command was send in a group
     if update.effective_chat.type == "supergroup":
         return True
@@ -61,6 +76,8 @@ def start_join(update, context):  # starts the joining-phase
                                                "Joining Phase initiated. \n You can join the game now by writing me (the bot) via private chat!"
                                                )
             logger.info("Joining Phase initiated")
+            with open('saveFiles/werwolf.save', 'a') as savetxt:
+                savetxt.write('joining\n')
         else:
             update.effective_chat.send_message(text="The game is already in the Joining Phase")
 
@@ -94,6 +111,7 @@ def n_join(update, context):  # let's the narrator join as such
                 '/good_night\n'
                 '/reset'
             )
+            logger.info(narrator_id)
             logger.info(update.message.from_user.name + " is now the narrator")
             with open('saveFiles/werwolf.save', 'w') as savetxt:
                 savetxt.write(str(narrator_id) + '\n')
@@ -135,6 +153,8 @@ def join_name_re(update, context) -> int:
         update.effective_chat.send_message(text="You joined the game. Have fun!", reply_markup=ReplyKeyboardRemove())
         for player in playerlist_alive:
             if player.chat_id == update.effective_chat.id:
+                with open('saveFiles/werwolf.save', 'a') as savetxt:
+                    savetxt.write(player.print() + '\n')
                 logger.info(player.name + " joined the game")
                 return ConversationHandler.END
     elif update.message.text.lower() == "no":
@@ -209,12 +229,14 @@ def distr_roles(update, context):  # distributes the roles to the players
                             o += " and " + player.special_role
                         o += " to " + player.name
                         logger.info(o)
+                    with open('saveFiles/werwolf.save', 'w') as savetxt:
+                        savetxt.write(str(narrator_id)+'\n')
+                        savetxt.write(str(gamechat_id)+'\n')
                     for player in playerlist_alive:
                         with open('saveFiles/werwolf.save', 'a') as savetxt:
                             savetxt.write("a," + player.print() + '\n')
                     update.effective_chat.send_message(
                         "Roles have been distributed. Everyone should know their role now.")
-                    logger.info("Players have been saved now.")
 
 
 def vote(update, context):  # starts the voting process
