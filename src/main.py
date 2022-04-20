@@ -48,14 +48,14 @@ def load_save_file():  # read in save.txt in case the bot shut down
             set_joining_again()
             for i in range(3, len(lines)):
                 cut_line = lines[i].split(',')
-                p = Player(int(cut_line[0]), int(cut_line[1]), cut_line[2], None)
+                p = Player(int(cut_line[0]), int(cut_line[1]), None)
                 playerlist_alive.append(p)
                 logger.info("Added " + p.name + " back to the joining list")
 
         else:
             for i in range(2, len(lines)):
                 cut_line = lines[i].split(',')
-                p = Player(int(cut_line[1]), int(cut_line[2]), cut_line[3], cut_line[4])
+                p = Player(int(cut_line[1]), int(cut_line[2]), cut_line[3])
                 if len(cut_line) > 5:
                     p.special_role = cut_line[5]
                 if cut_line[0] == 'a':

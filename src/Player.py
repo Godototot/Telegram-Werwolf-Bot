@@ -1,7 +1,6 @@
 class Player:
 
-    def __init__(self, chat_id, player_id, player_name, role):
-        self.chat_id = chat_id
+    def __init__(self, player_id, player_name, role):
         self.id = player_id
         self.name = player_name
         self.role = role
@@ -9,7 +8,7 @@ class Player:
         self.vote = None
 
     def print(self) -> str:
-        out = str(self.chat_id) + ',' + str(self.id) + ',' + self.name
+        out = str(self.id) + ',' + self.name
         if self.role is not None:
             out += ',' + self.role
         if self.special_role is not None:

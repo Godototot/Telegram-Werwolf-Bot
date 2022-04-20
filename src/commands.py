@@ -141,7 +141,7 @@ def join_name(update, context) -> int:
             update.effective_chat.send_message(
                 text="Sorry there is already a player with this name. Please enter a different name:")
             return 0
-    playerlist_alive.append(Player(update.effective_chat.id, update.message.from_user.id, input_name, None))
+    playerlist_alive.append(Player(update.message.from_user.id, input_name, None))
     update.effective_chat.send_message(
         text="The name you entered is '" + playerlist_alive[-1].name + "'.\n Do you wanna keep that? (yes/no).",
         reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
@@ -152,14 +152,14 @@ def join_name_re(update, context) -> int:
     if update.message.text.lower() == "yes":
         update.effective_chat.send_message(text="You joined the game. Have fun!", reply_markup=ReplyKeyboardRemove())
         for player in playerlist_alive:
-            if player.chat_id == update.effective_chat.id:
+            if player.id == update.effective_chat.id:
                 with open('saveFiles/werwolf.save', 'a') as savetxt:
                     savetxt.write(player.print() + '\n')
                 logger.info(player.name + " joined the game")
                 return ConversationHandler.END
     elif update.message.text.lower() == "no":
         for player in playerlist_alive:
-            if player.chat_id == update.effective_chat.id:
+            if player.id == update.effective_chat.id:
                 playerlist_alive.remove(player)
                 break
         update.effective_chat.send_message(text="Please enter a new name:", reply_markup=ReplyKeyboardRemove())
@@ -172,7 +172,7 @@ def join_name_re(update, context) -> int:
 
 def join_cancel(update, context) -> int:
     for player in playerlist_alive:
-        if player.chat_id == update.effective_chat.id:
+        if player.id == update.effective_chat.id:
             playerlist_alive.remove(player)
     update.effective_chat.send_message("Joining has been canceled")
     return ConversationHandler.END
@@ -223,7 +223,7 @@ def distr_roles(update, context):  # distributes the roles to the players
                         if player.special_role is not None:
                             o += "You have an additional role as well: '" + player.special_role + "'.\n"
                         o += "I can't handle special abilities (yet), so if there is anything to do, the narrator will take care of it."
-                        context.bot.send_message(chat_id=player.chat_id, text=o)
+                        context.bot.send_message(chat_id=player.id, text=o)
                         o = "Assigned " + player.role
                         if player.special_role is not None:
                             o += " and " + player.special_role
@@ -245,7 +245,7 @@ def vote(update, context):  # starts the voting process
         update.effective_chat.send_message(text="Voting has started!\n Please vote via private chat.")
         accused = context.args
         for player in playerlist_alive:
-            context.bot.send_message(chat_id=player.chat_id,
+            context.bot.send_message(chat_id=player.id,
                                      text="Please vote for the person you wanna see dead.\n Choose from the options below.",
                                      reply_markup=ReplyKeyboardMarkup([accused], one_time_keyboard=True))
         logger.info("Voting process initiated")
@@ -255,7 +255,7 @@ def vote_answer(update, context):  # collects the answer of the votes
     if accused == []:
         return
     for player in playerlist_alive:
-        if (player.chat_id == update.effective_chat.id):
+        if (player.id == update.effective_chat.id):
             if (player.vote is None):
                 if update.message.text in accused:
                     player.vote = update.message.text
@@ -284,7 +284,7 @@ def vote_answer(update, context):  # collects the answer of the votes
 def change_vote(update, context):  # allows players to change their vote before the deadline
     if check_for_chat(update):
         for player in playerlist_alive:
-            if (player.chat_id == update.effective_chat.id):
+            if player.id == update.effective_chat.id:
                 player.vote = None
                 global vote_process
                 vote_process -= 1
@@ -315,7 +315,7 @@ def results(update, context):  # finishes the voting process
         for player in playerlist_alive:
             if player.vote is None:
                 not_voted.append(player.name)
-                context.bot.send_message(chat_id=player.chat_id, text="You didn't vote. Make sure to vote next time.",
+                context.bot.send_message(chat_id=player.id, text="You didn't vote. Make sure to vote next time.",
                                          reply_markup=ReplyKeyboardRemove())
         out += "No vote: " + ", ".join(not_voted) + '\n'
 
@@ -356,7 +356,7 @@ def kill(update, context):  # Command for narrator to kill a player
                 new_text = ""
                 with open('saveFiles/werwolf.save', 'r') as savetxt:
                     for line in savetxt:
-                        new_line = line.replace("a," + str(player.chat_id), "d," + str(player.chat_id))
+                        new_line = line.replace("a," + str(player.id), "d," + str(player.id))
                         new_text += new_line
                 with open('saveFiles/werwolf.save', 'w') as savetxt:
                     savetxt.write(new_text)
