@@ -48,7 +48,7 @@ def load_save_file():  # read in save.txt in case the bot shut down
             set_joining_again()
             for i in range(3, len(lines)):
                 cut_line = lines[i].split(',')
-                p = Player(int(cut_line[0]), int(cut_line[1]), None)
+                p = Player(int(cut_line[0]), cut_line[1], None)
                 playerlist_alive.append(p)
                 logger.info("Added " + p.name + " back to the joining list")
 
@@ -92,6 +92,16 @@ def setup_handlers(dispatcher):
                 1: [MessageHandler(Filters.text & (~Filters.command), join_name_re)]
             },
             fallbacks=[CommandHandler('cancel', join_cancel)]
+        )
+    )
+    dispatcher.add_handler(
+        ConversationHandler(
+            entry_points=[CommandHandler('choose_roles', cr_start)],
+            states={
+                0: [MessageHandler(Filters.text & (~Filters.command), cr_start)],
+                1: [MessageHandler(Filters.text & (~Filters.command), choose_roles)]
+            },
+            fallbacks=[CommandHandler('cancel', cr_cancel)]
         )
     )
     dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command) & Filters.chat_type.private, vote_answer))
