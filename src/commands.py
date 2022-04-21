@@ -164,26 +164,17 @@ def join_name(update, context) -> int:
             update.effective_chat.send_message(
                 text="Sorry there is already a player with this name. Please enter a different name:")
             return 0
-    playerlist_alive.append(Player(update.message.from_user.id, input_name, None, None))
+    playerlist_alive.append(Player(update.message.from_user.id, input_name, "", None, None))
     update.effective_chat.send_message(
-        text="The name you entered is '" + playerlist_alive[-1].name + "'.\n Do you wanna keep that? (yes/no).",
+        text="The name you entered is '" + input_name + "'.\n Do you wanna keep that? (yes/no).",
         reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
     return 1
 
 
 def join_name_re(update, context) -> int:
     if update.message.text.lower() == "yes":
-        update.effective_chat.send_message(text="You joined the game. Have fun!", reply_markup=ReplyKeyboardRemove())
-        for player in playerlist_alive:
-            if player.id == update.effective_chat.id:
-                save = json.load(open('saveFiles/gamesave.json'))
-                with open('saveFiles/gamesave.json', 'w') as savefile:
-                    p_dict = {'id': player.id, 'name': player.name, 'role': None, 'special_role': None, 'alive': True}
-                    save['Players'].append(p_dict)
-                    json.dump(save, savefile)
-                narratorlog(context, player.name + " joined the game")
-                logger.info(player.name + " joined the game")
-                return ConversationHandler.END
+        update.effective_chat.send_message(text="Name saved! \n May I also ask for your pronouns? \n(If they are not listed or you don't want share them you can use the normal keyboard to write anything.)", reply_markup=ReplyKeyboardMarkup([["er/ihm", "sie/ihr", "they/them"]], one_time_keyboard=True))
+        return 2
     elif update.message.text.lower() == "no":
         for player in playerlist_alive:
             if player.id == update.effective_chat.id:
@@ -197,6 +188,39 @@ def join_name_re(update, context) -> int:
         return 1
 
 
+def join_pronouns(update, context) -> int:
+    input_pro = update.message.text
+    for player in playerlist_alive:
+        if player.id == update.effective_chat.id:
+            player.pronouns = input_pro
+            update.effective_chat.send_message(
+                text="The pronouns you entered are \n'" + input_pro + "'.\n Do you wanna keep that? (yes/no).",
+                reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
+            return 3
+
+
+def join_pronouns_re(update, context) -> int:
+    if update.message.text.lower() == "yes":
+        update.effective_chat.send_message(text="You joined the game. Have fun!", reply_markup=ReplyKeyboardRemove())
+        for player in playerlist_alive:
+            if player.id == update.effective_chat.id:
+                save = json.load(open('saveFiles/gamesave.json'))
+                with open('saveFiles/gamesave.json', 'w') as savefile:
+                    p_dict = {'id': player.id, 'name': player.name, 'pronouns': player.pronouns, 'role': None, 'special_role': None, 'alive': True}
+                    save['Players'].append(p_dict)
+                    json.dump(save, savefile)
+                narratorlog(context, player.name + ' (' + player.pronouns + ") joined the game")
+                logger.info(player.name + ' (' + player.pronouns + ") joined the game")
+                return ConversationHandler.END
+    elif update.message.text.lower() == "no":
+        update.effective_chat.send_message(text="Please enter different pronouns:", reply_markup=ReplyKeyboardMarkup([["er/ihm", "sie/ihr", "they/them"]], one_time_keyboard=True))
+        return 2
+    else:
+        update.effective_chat.send_message("Please enter 'yes' or 'no'",
+                                           reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
+        return 3
+
+
 def join_cancel(update, context) -> int:
     for player in playerlist_alive:
         if player.id == update.effective_chat.id:
@@ -206,12 +230,12 @@ def join_cancel(update, context) -> int:
 
 
 def list_players(update, context):  # lists all living and dead players
-    players_out = "Alive: \n"
+    players_out = "****Alive**** \n"
     for player in playerlist_alive:
-        players_out += player.name + '\n'
-    players_out += "Dead: \n"
+        players_out += player.name + ' (' + player.pronouns + ')' + '\n'
+    players_out += "\n ****Dead**** \n"
     for player in playerlist_dead:
-        players_out += player.name + '\n'
+        players_out += player.name + ' (' + player.pronouns + ')' + '\n'
     update.effective_chat.send_message(text=players_out)
 
 
