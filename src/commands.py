@@ -2,6 +2,9 @@ from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatPermissions
 from telegram.ext import ConversationHandler
 import random
 import logging
+import json
+from operator import itemgetter
+from math import ceil
 from Player import *
 
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -13,6 +16,9 @@ gamechat_id = None  # This is the main group for the game
 narrator_id = None  # The ID of the narrator. He is the first to join the game
 playerlist_alive = []
 playerlist_dead = []
+all_roles = {}
+role_list = [] #list of chosen roles
+srole_list = [] #list of special roles
 accused = []  # Liste der angeklagten Spieler bei der Abstimmung
 vote_process = 0  # keeping track of vote process
 
@@ -92,7 +98,6 @@ def end_join(update, context):  # ends the joining-phase
         else:
             update.effective_chat.send_message(text="The game is not in the Joining Phase")
 
-
 def n_join(update, context):  # let's the narrator join as such
     if check_for_chat(update):
         global narrator_id
@@ -103,6 +108,7 @@ def n_join(update, context):  # let's the narrator join as such
                 'The commands you can use, are:\n'
                 '/start_join\n'
                 '/end_join\n'
+                '/choose_roles\n'
                 '/distr_roles\n'
                 '/vote <name1> <name2> <name3>\n'
                 '/results\n'
@@ -188,55 +194,114 @@ def list_players(update, context):  # lists all living and dead players
     update.effective_chat.send_message(text=players_out)
 
 
+def reshape(arr, cols):
+    rows = ceil(len(arr) / cols)
+    res = []
+    for row in range(rows):
+        current_row = []
+        for col in range(cols):
+            arr_idx = row * cols + col
+            if arr_idx < len(arr):
+                current_row.append(arr[arr_idx])
+        res.append(current_row)
+    return res
+
+
+def cr_start(update, context) -> int:  # for the narrator to choose the roles that are in the game
+    global all_roles
+    if check_for_chat(update) and check_for_narrator(update):
+        if not joining:
+            all_roles = json.load(open('../config/roles.json'))
+            roles_keyboard = reshape(list(map(itemgetter('name'), all_roles['Roles'])), 3)
+            sroles_keyboard = reshape(list(map(itemgetter('name'), all_roles['SpecialRoles'])), 3)
+            if len(role_list) >= len(playerlist_alive):
+                update.effective_chat.send_message(text="All roles have been chosen. Do you want to add any special roles? (Type 'end' if you are finished)",
+                                                   reply_markup=ReplyKeyboardMarkup(sroles_keyboard))
+            else:
+                update.effective_chat.send_message(text="There are " + str(len(playerlist_alive)) + " roles to choose. What will it be? (Type '/cancel' to cancel.)",
+                                                   reply_markup=ReplyKeyboardMarkup(roles_keyboard))
+            return 1
+        else:
+            update.effective_chat.send_message(text="This command can only be used after the joining phase")
+    return ConversationHandler.END
+
+
+def choose_roles(update, context) -> int:
+    global all_roles
+    global role_list
+    global srole_list
+    if len(role_list) < len(playerlist_alive):
+        if update.message.text in list(map(itemgetter('name'), all_roles['Roles'])):
+            role_list.append(update.message.text)
+            logger.info("added " + update.message.text)
+            if len(role_list) >= len(playerlist_alive):
+                sroles_keyboard = reshape(list(map(itemgetter('name'), all_roles['SpecialRoles'])), 3)
+                update.effective_chat.send_message(
+                    text="All roles have been chosen. Do you want to add any special roles? (Type 'end' if you are finished)",
+                    reply_markup=ReplyKeyboardMarkup(sroles_keyboard))
+                return 1
+            update.effective_chat.send_message(text="There are " + str(len(playerlist_alive)) + "roles left  to choose. (Type '/cancel' to cancel.) \n The current chosen roles are: \n" + '\n'.join(role_list))
+            return 1
+        else:
+            update.effective_chat.send_message(text="I do not know this role. Choose a different one.")
+            return 1
+    else:
+        if update.message.text == 'end':
+            update.effective_chat.send_message(
+                text="The final list of roles is: \n **Roles** \n" + '\n'.join(role_list) +'\n' + "**Special Roles** \n" + '\n'.join(srole_list) + "\nIf you are not happy with this use '/choose_roles' again and cancel to delete all chosen roles.",
+                reply_markup=ReplyKeyboardRemove())
+            return ConversationHandler.END
+        if update.message.text in list(map(itemgetter('name'), all_roles['SpecialRoles'])):
+            srole_list.append(update.message.text)
+            logger.info("added "+update.message.text)
+            update.effective_chat.send_message(text="Do you want to add another special roles? (Type 'end' if you are finished) \n The current chosen special roles are: \n" + '\n'.join(srole_list))
+            return 1
+        else:
+            update.effective_chat.send_message(text="I do not know this role. Choose a different one.")
+            return 1
+
+
+def cr_cancel(update, context) -> int:  # cancel the choose_role process
+    global role_list, srole_list
+    role_list = []
+    srole_list = []
+    update.effective_chat.send_message(text='All chosen roles have been deleted.', reply_markup=ReplyKeyboardRemove())
+    return ConversationHandler.END
+
+
 def distr_roles(update, context):  # distributes the roles to the players
     if not joining and check_for_narrator(update):
-        rolelist = []
-        # reading roles from txt
-        with open('../config/roles.txt', 'r') as rolestxt:
-            for role in rolestxt.readlines():
-                rolelist.append(role.replace('\n', ''))
-        if len(rolelist) != len(playerlist_alive):
-            update.effective_chat.send_message(text="The numbers of roles and players do not match")
-        else:
-            # shuffle rolelist and distribute to players
-            random.shuffle(rolelist)
-            for i in range(len(rolelist)):
-                playerlist_alive[i].role = rolelist[i]
-            logger.info("Roles shuffled and distributed")
-            # reading special roles from txt
-            s_rolelist = []
-            with open('../config/special_roles.txt', 'r') as s_rolestxt:
-                for s_role in s_rolestxt.readlines():
-                    s_rolelist.append(s_role.replace('\n', ''))
-                if len(s_rolelist) > len(playerlist_alive):
-                    update.effective_chat.send_message(
-                        text="The numbers of special roles is higher than the number of players")
-                else:
-                    # distribute special roles to players
-                    i = 0
-                    for player in random.sample(playerlist_alive, len(s_rolelist)):
-                        player.special_role = s_rolelist[i]
-                        i += 1
-                    # sending roles to players
-                    for player in playerlist_alive:
-                        o = "Your role is '" + player.role + "'!\n"
-                        if player.special_role is not None:
-                            o += "You have an additional role as well: '" + player.special_role + "'.\n"
-                        o += "I can't handle special abilities (yet), so if there is anything to do, the narrator will take care of it."
-                        context.bot.send_message(chat_id=player.id, text=o)
-                        o = "Assigned " + player.role
-                        if player.special_role is not None:
-                            o += " and " + player.special_role
-                        o += " to " + player.name
-                        logger.info(o)
-                    with open('saveFiles/werwolf.save', 'w') as savetxt:
-                        savetxt.write(str(narrator_id)+'\n')
-                        savetxt.write(str(gamechat_id)+'\n')
-                    for player in playerlist_alive:
-                        with open('saveFiles/werwolf.save', 'a') as savetxt:
-                            savetxt.write("a," + player.print() + '\n')
-                    update.effective_chat.send_message(
-                        "Roles have been distributed. Everyone should know their role now.")
+        global role_list, srole_list
+        # shuffle rolelist and distribute to players
+        random.shuffle(role_list)
+        for i in range(len(role_list)):
+            playerlist_alive[i].role = role_list[i]
+        logger.info("Roles shuffled and distributed")
+        # distribute special roles to players
+        i = 0
+        for player in random.sample(playerlist_alive, len(srole_list)):
+            player.special_role = srole_list[i]
+            i += 1
+        # sending roles to players
+        for player in playerlist_alive:
+            o = "Your role is '" + player.role + "'!\n"
+            if player.special_role is not None:
+                o += "You have an additional role as well: '" + player.special_role + "'.\n"
+            o += "I can't handle special abilities (yet), so if there is anything to do, the narrator will take care of it."
+            context.bot.send_message(chat_id=player.id, text=o)
+            o = "Assigned " + player.role
+            if player.special_role is not None:
+                o += " and " + player.special_role
+            o += " to " + player.name
+            logger.info(o)
+        with open('saveFiles/werwolf.save', 'w') as savetxt:
+            savetxt.write(str(narrator_id)+'\n')
+            savetxt.write(str(gamechat_id)+'\n')
+        for player in playerlist_alive:
+            with open('saveFiles/werwolf.save', 'a') as savetxt:
+                savetxt.write("a," + player.print() + '\n')
+        update.effective_chat.send_message(
+            "Roles have been distributed. Everyone should know their role now.")
 
 
 def vote(update, context):  # starts the voting process

@@ -48,7 +48,8 @@ To work properly the bot has to be an Admin in the group he is added to.
   <li><strong>n_join</strong> : you join the game as the narrator if there is no narrator yet</li>
   <li><strong>start_join</strong> : starts the joining-phase and allows players to join</li>
   <li><strong>end_join</strong> : ends the joining-phase</li>
-  <li><strong>distr_roles</strong> : can be executed after joining phase has ended. distributes the (special) roles from the txt-files to all players</li>
+  <li><strong>choose_roles</strong> : can be executeed after joining phase has ended. let's the narrator choose the roles based on a pre-set list and the number of players</li>
+  <li><strong>distr_roles</strong> : can be executed after joining phase has ended. distributes the (special) roles from the chosen list to all players</li>
   <li><strong>vote [name1][opt name2][opt name 3]</strong> : starts the voting process. The bot writes each player in PC and let's them choose one from the names through custom keyboard</li>
   <li><strong>results</strong> : ends the voting process and returns the result in the group chat</li>
   <li><strong>kill [name]</strong> : changes the players state to dead and removes their right to write in the group chat</li>

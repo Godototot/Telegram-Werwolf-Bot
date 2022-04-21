@@ -1,0 +1,75 @@
+{
+	"Roles": [
+		{
+			"name": "Werwolf",
+			"description" : "Die Werwölfe sind finstere Gestalten, die nachts umgehen. Sie lauern auf Beute und fressen harmlose Dorfbewohner. Tagsüber sind sie normale Menschen, und müssen sich vor den anderen Bürgern verstecken um nicht gelyncht zu werden.",
+			"chats": [2]
+		},
+		{
+			"name": "Wolfsjunges",
+			"description" : "Nicht alle Werwölfe sind groß und bedrohlich. Manchmal beherbergt ein Rudel auch Jungtiere. Diese Wolfsjungen sind flauschig und niedlich, fast erscheinen sie freundlich. Doch trotzdem müssen sie sterben, wie alle anderen Werwölfe. Wird das Wolfsjunge bei Tag hingerichtet, werden die erwachsenen Wölfe so wütend, dass sie in der folgenden Nacht 2 Dorfbewohner fressen können.",
+			"chats": [2]
+		},
+		{
+			"name": "Gefallener Wolfsjaeger",
+			"description": "Dieser, einst gegen die Werwölfe kämpfende Dorfbewohner hat ein Amulett angefertigt. Die Werwölfe haben ihn jedoch bekommen und verwandelt, bevor er sich damit schützen konnte. Er gibt in der ersten Nacht einem beliebigen Spieler das Amulett, dass dieser bei Einbruch der nächsten Nacht weitergibt. Dieses Amulett schützt vor Werwolfangriffen. Wenn aber der Wolfsjaeger stirbt, stirbt auch der Träger des Amuletts.",
+			"chats": [2]
+		},
+		{
+			"name": "Dorfbewohner",
+			"description": "Der Dorfbewohner ist ein einfacher Geselle. Er versucht die Werwölfe zu identifizieren und so schnell wie möglich wieder zu seinem alten ereignislosen Leben zurückzukehren."
+		},
+		{
+			"name": "Heuchler",
+			"description": "Der Heuchler behauptet zwar, hellseherische Fähigkeiten zu haben, hat in Wirklichkeit aber nur eine Seherkugel gestohlen und weiß nicht, wie man damit umgeht. Er kann, wie der Seher, jede Nacht eine Person ansehen. Seine Chancen, die richtige Rolle zu erfahren, liegt jedoch nur bei 50%. Ansonsten wird ihm eine zufällige andere Rolle gesagt.",
+			"chats": []
+		},
+		{
+			"name": "Meerschweinchen",
+			"description": "Das Meerschweinchen ist das Opfer der Runde. Es ist süß, flauschig, und darf, wenn es von Werwölfen getötet wird, jemandem Tollwut verpassen, der dann nur noch 24h zu leben hat. Schaut aber der Seher es an, explodiert es und zersprengt den Seher.",
+			"chats": []
+		},
+		{
+			"name": "Seherin",
+			"description": "Die Seherin darf jede Nacht eine Person auswählen, von der sie die Rolle sehen möchte. Entdeckt sie einen Werwolf, darf sie (muss aber nicht) die Rolle einer weiteren Person erfahren. Doch aufgepasst, erwischt sie das Meerschweinchen, so wird sie in 1.000 Teile zersprengt und stirbt.",
+			"chats": []
+		},
+		{
+			"name": "Seherlehrling",
+			"description": "Der Seherlehrling ist ein Dorfbewohner, der seine Tage damit verbringt der Seherin zu helfen und ihr zuzusehen. Wenn die Seherin stirbt, wird er zum neuen Seher.",
+			"chats": []
+		},
+		{
+			"name": "Hexe",
+			"description": "Das ganze Dorf fürchtet und verehrt seine Hexe. Niemand möchte es sich mit ihr verscherzen, denn sie kann mächtige Zaubertränke brauen. Sie kann unliebsame Dorfbewohner vergiften, aber auch ihre Verbündeten von einem Werwolfsangriff heilen. Sie hat EINEN Heiltrank und EINEN Gifttrank. Sie darf NICHT beide in der gleichen Nacht einsetzen. Solange sie den Heiltrank hat, erfährt sie, wer das Opfer der Nacht ist.",
+			"chats": []
+		},
+		{
+			"name": "Medium",
+			"description": "Wie langweilig es doch ist, mit den Lebenden zu sprechen. Schließlich haben sie ohnehin nie etwas Interessantes zu sagen! Wie gut, dass das Medium mit den Toten sprechen kann. Das Medium befindet sich von Beginn des Spiels an im Friedhof-Chat.",
+			"chats": [1]
+		},
+		{
+			"name": "Amor",
+			"description": "Der Amor darf in er ersten Nacht ein Liebespaar auswählen die dann als eigene Fraktion gewinnen können. Wenn sie auf der gleichen Seite sind, können sie auch mit dieser gewinnen. Stirbt einer, so stirbt auch der andere. Der Amor kann sich auch selbst wählen.",
+			"chats": []
+		},
+		{
+			"name": "Jäger",
+			"description": "Der Jäger trägt ständig ein großes Gewehr mit sich herum. Die Dorfbewohner wissen nicht so recht, was er will, denn er geht nie wirklich im Wald jagen. Doch sie wissen eins: der Jäger ist ein tapferer Mann, der nicht sterben würde, bevor er noch jemanden mit in den Tod gerissen hat. Wenn er stirbt kann er jemanden umbringen.",
+			"chats": []
+		},
+		{
+			"name":"Wilder Junge",
+			"description": "Der wilde Junge ist zwar ein Dorfbewohner, ist aber im Wald aufgewachsen und schließt sich gerne den Werwölfen an, wenn sie an seine Tür kommen. Falls er von den Werwölfen angegriffen wird, mutiert er selbst zum Werwolf. Bis dahin ist er Dorfbewohner und gewinnt mit dem Dorf.",
+			"chats": []
+		}
+	],
+	"SpecialRoles": [
+		{
+			"name":"Sündenbock",
+			"description": "Der Sündenbock stirbt, wenn bei einer Abstimmung keine Mehrheit entsteht. Er gibt diese Sonderrolle nach seinem Tod geheim an eine andere Person weiter.",
+			"chats": []
+		}
+	]
+}

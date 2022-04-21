@@ -1,0 +1,29 @@
+{
+	"General": "",
+	"Chats": [
+		{
+			"id": 0,
+			"name": "Dorf",
+			"description": "Das Dorf ist der Gruppenchat in dem sich alle Dorfbewohner bei Tag unterhalten und entscheiden koennen, wen  sie hinrichten. Hier darf nur bei Tag geschrieben werden.",
+			"active": "day"
+		},
+		{
+			"id": 1,
+			"name": "friedhof",
+			"description": "In den Friedhof kommen SpielerInnen, nachdem sie gestorben sind. Hier darf Tag und Nacht geschrieben werden.",
+			"active": "always"
+		},
+		{
+			"id": 2,
+			"name": "Wolfshoehle",
+			"description": "In der Wolfshoehle koennen sich die Werwoelfe besprechen und entscheiden, wen sie in der Nacht fressen wollen. Dieser Chat ist nur Nachts aktiv.",
+			"active": "night"
+		},
+		{
+			"id": 3,
+			"name": "Liebesnest",
+			"description": "Im Liebesnest koennen sich die zwei Personen, die von Amors Liebespfeil getroffen worden absprechen. Der Chat es Tag und Nacht aktiv.",
+			"active": "night"
+		}
+	]
+}
