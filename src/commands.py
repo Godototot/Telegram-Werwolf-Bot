@@ -17,8 +17,8 @@ narrator_id = None  # The ID of the narrator. He is the first to join the game
 playerlist_alive = []
 playerlist_dead = []
 all_roles = {}
-role_list = [] #list of chosen roles
-srole_list = [] #list of special roles
+role_list = []  #list of chosen roles
+srole_list = []  #list of special roles
 accused = []  # Liste der angeklagten Spieler bei der Abstimmung
 vote_process = 0  # keeping track of vote process
 
@@ -97,6 +97,7 @@ def end_join(update, context):  # ends the joining-phase
             update.effective_chat.send_message(text="Joining Phase concluded")
         else:
             update.effective_chat.send_message(text="The game is not in the Joining Phase")
+
 
 def n_join(update, context):  # let's the narrator join as such
     if check_for_chat(update):
@@ -317,11 +318,11 @@ def vote(update, context):  # starts the voting process
 
 
 def vote_answer(update, context):  # collects the answer of the votes
-    if accused == []:
+    if not accused:
         return
     for player in playerlist_alive:
-        if (player.id == update.effective_chat.id):
-            if (player.vote is None):
+        if player.id == update.effective_chat.id:
+            if player.vote is None:
                 if update.message.text in accused:
                     player.vote = update.message.text
                     update.effective_chat.send_message(
@@ -329,8 +330,8 @@ def vote_answer(update, context):  # collects the answer of the votes
                         reply_markup=ReplyKeyboardRemove())
                     global vote_process
                     vote_process += 1
-                    context.bot.send_message(chat_id=gamechat_id, text="Vote process: " + str(vote_process) + '/' + str(
-                        len(playerlist_alive)))
+                    if vote_process == ceil(len(playerlist_alive)/2) or vote_process == len(playerlist_alive)-1:
+                        context.bot.send_message(chat_id=gamechat_id, text="Vote process: " + str(vote_process) + '/' + str(len(playerlist_alive)))
                     logger.info(player.name + " voted for " + update.message.text)
                     return
                 else:
