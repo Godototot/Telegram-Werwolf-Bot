@@ -22,6 +22,10 @@ srole_list = []  #list of special roles
 accused = []  # Liste der angeklagten Spieler bei der Abstimmung
 vote_process = 0  # keeping track of vote process
 
+def narratorlog(context, log):
+    global narrator_id
+    if narrator_id:
+        context.bot.send_message(chat_id=narrator_id, text=log)
 
 def set_narrator_id(n_id):
     global narrator_id
@@ -81,6 +85,7 @@ def start_join(update, context):  # starts the joining-phase
             update.effective_chat.send_message(text=
                                                "Joining Phase initiated. \n You can join the game now by writing me (the bot) via private chat!"
                                                )
+            narratorlog(context, "Joining Phase initiated")
             logger.info("Joining Phase initiated")
             with open('saveFiles/werwolf.save', 'a') as savetxt:
                 savetxt.write('joining\n')
@@ -93,6 +98,7 @@ def end_join(update, context):  # ends the joining-phase
     if check_for_group(update) & check_for_narrator(update):
         if joining:
             joining = False
+            narratorlog(context, "Joining Phase concluded")
             logger.info("Joining Phase concluded")
             update.effective_chat.send_message(text="Joining Phase concluded")
         else:
@@ -118,7 +124,6 @@ def n_join(update, context):  # let's the narrator join as such
                 '/good_night\n'
                 '/reset'
             )
-            logger.info(narrator_id)
             logger.info(update.message.from_user.name + " is now the narrator")
             with open('saveFiles/werwolf.save', 'w') as savetxt:
                 savetxt.write(str(narrator_id) + '\n')
@@ -162,6 +167,7 @@ def join_name_re(update, context) -> int:
             if player.id == update.effective_chat.id:
                 with open('saveFiles/werwolf.save', 'a') as savetxt:
                     savetxt.write(player.print() + '\n')
+                narratorlog(context, player.name + " joined the game")
                 logger.info(player.name + " joined the game")
                 return ConversationHandler.END
     elif update.message.text.lower() == "no":
@@ -274,9 +280,11 @@ def distr_roles(update, context):  # distributes the roles to the players
     if not joining and check_for_narrator(update):
         global role_list, srole_list
         # shuffle rolelist and distribute to players
-        random.shuffle(role_list)
+        dist_role_list = role_list.copy()
+        random.shuffle(dist_role_list)
         for i in range(len(role_list)):
-            playerlist_alive[i].role = role_list[i]
+            playerlist_alive[i].role = dist_role_list[i]
+        narratorlog(context, "Roles shuffled and distributed")
         logger.info("Roles shuffled and distributed")
         # distribute special roles to players
         i = 0
@@ -294,7 +302,7 @@ def distr_roles(update, context):  # distributes the roles to the players
             if player.special_role is not None:
                 o += " and " + player.special_role
             o += " to " + player.name
-            logger.info(o)
+            narratorlog(context, o)
         with open('saveFiles/werwolf.save', 'w') as savetxt:
             savetxt.write(str(narrator_id)+'\n')
             savetxt.write(str(gamechat_id)+'\n')
@@ -303,6 +311,7 @@ def distr_roles(update, context):  # distributes the roles to the players
                 savetxt.write("a," + player.print() + '\n')
         update.effective_chat.send_message(
             "Roles have been distributed. Everyone should know their role now.")
+        logger.info("All Players know their roles now")
 
 
 def vote(update, context):  # starts the voting process
@@ -314,6 +323,7 @@ def vote(update, context):  # starts the voting process
             context.bot.send_message(chat_id=player.id,
                                      text="Please vote for the person you wanna see dead.\n Choose from the options below.",
                                      reply_markup=ReplyKeyboardMarkup([accused], one_time_keyboard=True))
+        narratorlog(context, "Voting process initiated")
         logger.info("Voting process initiated")
 
 
@@ -332,7 +342,8 @@ def vote_answer(update, context):  # collects the answer of the votes
                     vote_process += 1
                     if vote_process == ceil(len(playerlist_alive)/2) or vote_process == len(playerlist_alive)-1:
                         context.bot.send_message(chat_id=gamechat_id, text="Vote process: " + str(vote_process) + '/' + str(len(playerlist_alive)))
-                    logger.info(player.name + " voted for " + update.message.text)
+                    narratorlog(context, player.name + "voted for" + update.message.text)
+                    logger.info(player.name + "has voted")
                     return
                 else:
                     update.effective_chat.send_message(text="Please vote for one of the accused players.",
@@ -357,6 +368,7 @@ def change_vote(update, context):  # allows players to change their vote before 
                 update.effective_chat.send_message(
                     text="Your vote has now been erased. Please vote again from the options below.",
                     reply_markup=ReplyKeyboardMarkup([accused], one_time_keyboard=True))
+                narratorlog(player.name + " erased their vote")
                 logger.info(player.name + " erased their vote")
                 return
         update.effective_chat.send_message(text="Sorry, you can't vote.")
@@ -393,9 +405,11 @@ def results(update, context):  # finishes the voting process
                 break
         if draw:
             out += "It's a draw!"
+            narratorlog(context, "The vote has ended in a draw")
             logger.info("The vote ended in a draw.")
         else:
             out += "This means '" + accused[winner] + "' got the most votes and should die."
+            narratorlog(context, "Results have been shared. " + accused[winner] + " got the most votes.")
             logger.info("Results have been shared. " + accused[winner] + " got the most votes.")
         update.effective_chat.send_message(out)
 
@@ -416,6 +430,7 @@ def kill(update, context):  # Command for narrator to kill a player
                 if player.role is not None:
                     o += player.role + "!"
                 update.effective_chat.send_message(o)
+                narratorlog(context, player.name + "killed.")
                 logger.info(player.name + " killed.")
 
                 # changing save-file
