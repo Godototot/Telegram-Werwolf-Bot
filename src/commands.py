@@ -22,10 +22,12 @@ srole_list = []  #list of special roles
 accused = []  # Liste der angeklagten Spieler bei der Abstimmung
 vote_process = 0  # keeping track of vote process
 
+
 def narratorlog(context, log):
     global narrator_id
     if narrator_id:
         context.bot.send_message(chat_id=narrator_id, text=log)
+
 
 def set_narrator_id(n_id):
     global narrator_id
@@ -80,15 +82,18 @@ def start_join(update, context):  # starts the joining-phase
             global gamechat_id
             if gamechat_id is None:
                 gamechat_id = update.effective_chat.id
-                with open('saveFiles/werwolf.save', 'a') as savetxt:
-                    savetxt.write(str(gamechat_id) + '\n')
+                save = json.load(open('saveFiles/gamesave.json'))
+                with open('saveFiles/gamesave.json', 'w') as savefile:
+                    save['Gamechat'] = gamechat_id
+                    save['Joining'] = True
+                    json.dump(save, savefile)
+
             update.effective_chat.send_message(text=
                                                "Joining Phase initiated. \n You can join the game now by writing me (the bot) via private chat!"
                                                )
             narratorlog(context, "Joining Phase initiated")
             logger.info("Joining Phase initiated")
-            with open('saveFiles/werwolf.save', 'a') as savetxt:
-                savetxt.write('joining\n')
+
         else:
             update.effective_chat.send_message(text="The game is already in the Joining Phase")
 
@@ -98,6 +103,10 @@ def end_join(update, context):  # ends the joining-phase
     if check_for_group(update) & check_for_narrator(update):
         if joining:
             joining = False
+            save = json.load(open('saveFiles/gamesave.json'))
+            with open('saveFiles/gamesave.json', 'w') as savefile:
+                save['Joining'] = False
+                json.dump(save, savefile)
             narratorlog(context, "Joining Phase concluded")
             logger.info("Joining Phase concluded")
             update.effective_chat.send_message(text="Joining Phase concluded")
@@ -125,8 +134,10 @@ def n_join(update, context):  # let's the narrator join as such
                 '/reset'
             )
             logger.info(update.message.from_user.name + " is now the narrator")
-            with open('saveFiles/werwolf.save', 'w') as savetxt:
-                savetxt.write(str(narrator_id) + '\n')
+            save = json.load(open('saveFiles/gamesave.json'))
+            with open('saveFiles/gamesave.json', 'w') as savefile:
+                save['Narrator'] = narrator_id
+                json.dump(save, savefile)
         else:
             update.effective_chat.send_message("There is already a narrator")
 
@@ -153,23 +164,17 @@ def join_name(update, context) -> int:
             update.effective_chat.send_message(
                 text="Sorry there is already a player with this name. Please enter a different name:")
             return 0
-    playerlist_alive.append(Player(update.message.from_user.id, input_name, None))
+    playerlist_alive.append(Player(update.message.from_user.id, input_name, "", None, None))
     update.effective_chat.send_message(
-        text="The name you entered is '" + playerlist_alive[-1].name + "'.\n Do you wanna keep that? (yes/no).",
+        text="The name you entered is '" + input_name + "'.\n Do you wanna keep that? (yes/no).",
         reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
     return 1
 
 
 def join_name_re(update, context) -> int:
     if update.message.text.lower() == "yes":
-        update.effective_chat.send_message(text="You joined the game. Have fun!", reply_markup=ReplyKeyboardRemove())
-        for player in playerlist_alive:
-            if player.id == update.effective_chat.id:
-                with open('saveFiles/werwolf.save', 'a') as savetxt:
-                    savetxt.write(player.print() + '\n')
-                narratorlog(context, player.name + " joined the game")
-                logger.info(player.name + " joined the game")
-                return ConversationHandler.END
+        update.effective_chat.send_message(text="Name saved! \n May I also ask for your pronouns? \n(If they are not listed or you don't want share them you can use the normal keyboard to write anything.)", reply_markup=ReplyKeyboardMarkup([["er/ihm", "sie/ihr", "they/them"]], one_time_keyboard=True))
+        return 2
     elif update.message.text.lower() == "no":
         for player in playerlist_alive:
             if player.id == update.effective_chat.id:
@@ -183,6 +188,39 @@ def join_name_re(update, context) -> int:
         return 1
 
 
+def join_pronouns(update, context) -> int:
+    input_pro = update.message.text
+    for player in playerlist_alive:
+        if player.id == update.effective_chat.id:
+            player.pronouns = input_pro
+            update.effective_chat.send_message(
+                text="The pronouns you entered are \n'" + input_pro + "'.\n Do you wanna keep that? (yes/no).",
+                reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
+            return 3
+
+
+def join_pronouns_re(update, context) -> int:
+    if update.message.text.lower() == "yes":
+        update.effective_chat.send_message(text="You joined the game. Have fun!", reply_markup=ReplyKeyboardRemove())
+        for player in playerlist_alive:
+            if player.id == update.effective_chat.id:
+                save = json.load(open('saveFiles/gamesave.json'))
+                with open('saveFiles/gamesave.json', 'w') as savefile:
+                    p_dict = {'id': player.id, 'name': player.name, 'pronouns': player.pronouns, 'role': None, 'special_role': None, 'silence_cunter': 0, 'alive': True}
+                    save['Players'].append(p_dict)
+                    json.dump(save, savefile)
+                narratorlog(context, player.name + ' (' + player.pronouns + ") joined the game")
+                logger.info(player.name + ' (' + player.pronouns + ") joined the game")
+                return ConversationHandler.END
+    elif update.message.text.lower() == "no":
+        update.effective_chat.send_message(text="Please enter different pronouns:", reply_markup=ReplyKeyboardMarkup([["er/ihm", "sie/ihr", "they/them"]], one_time_keyboard=True))
+        return 2
+    else:
+        update.effective_chat.send_message("Please enter 'yes' or 'no'",
+                                           reply_markup=ReplyKeyboardMarkup([["yes", "no"]], one_time_keyboard=True))
+        return 3
+
+
 def join_cancel(update, context) -> int:
     for player in playerlist_alive:
         if player.id == update.effective_chat.id:
@@ -192,12 +230,12 @@ def join_cancel(update, context) -> int:
 
 
 def list_players(update, context):  # lists all living and dead players
-    players_out = "Alive: \n"
+    players_out = "****Alive**** \n"
     for player in playerlist_alive:
-        players_out += player.name + '\n'
-    players_out += "Dead: \n"
+        players_out += player.name + ' (' + player.pronouns + ')' + '\n'
+    players_out += "\n ****Dead**** \n"
     for player in playerlist_dead:
-        players_out += player.name + '\n'
+        players_out += player.name + ' (' + player.pronouns + ')' + '\n'
     update.effective_chat.send_message(text=players_out)
 
 
@@ -277,8 +315,11 @@ def cr_cancel(update, context) -> int:  # cancel the choose_role process
 
 
 def distr_roles(update, context):  # distributes the roles to the players
-    if not joining and check_for_narrator(update):
+    if not joining and check_for_narrator(update) and check_for_group(update):
         global role_list, srole_list
+        if len(role_list) < len(playerlist_alive):
+            update.effective_chat.send_message(text="Please choose the roles you wanna play with first. You can do that with the command '/choose_roles'")
+            return
         # shuffle rolelist and distribute to players
         dist_role_list = role_list.copy()
         random.shuffle(dist_role_list)
@@ -303,14 +344,14 @@ def distr_roles(update, context):  # distributes the roles to the players
                 o += " and " + player.special_role
             o += " to " + player.name
             narratorlog(context, o)
-        with open('saveFiles/werwolf.save', 'w') as savetxt:
-            savetxt.write(str(narrator_id)+'\n')
-            savetxt.write(str(gamechat_id)+'\n')
-        for player in playerlist_alive:
-            with open('saveFiles/werwolf.save', 'a') as savetxt:
-                savetxt.write("a," + player.print() + '\n')
+        save = json.load(open('saveFiles/gamesave.json'))
+        with open('saveFiles/gamesave.json', 'w') as savefile:
+            for i in range(len(playerlist_alive)):
+                save['Players'][i]['role'] = playerlist_alive[i].role
+                save['Players'][i]['special_role'] = playerlist_alive[i].special_role
+            json.dump(save, savefile)
         update.effective_chat.send_message(
-            "Roles have been distributed. Everyone should know their role now.")
+            "Roles have been distributed. Everyone should know their role now. \n Good luck!")
         logger.info("All Players know their roles now")
 
 
@@ -368,7 +409,7 @@ def change_vote(update, context):  # allows players to change their vote before 
                 update.effective_chat.send_message(
                     text="Your vote has now been erased. Please vote again from the options below.",
                     reply_markup=ReplyKeyboardMarkup([accused], one_time_keyboard=True))
-                narratorlog(player.name + " erased their vote")
+                narratorlog(context, player.name + " erased their vote")
                 logger.info(player.name + " erased their vote")
                 return
         update.effective_chat.send_message(text="Sorry, you can't vote.")
@@ -434,13 +475,12 @@ def kill(update, context):  # Command for narrator to kill a player
                 logger.info(player.name + " killed.")
 
                 # changing save-file
-                new_text = ""
-                with open('saveFiles/werwolf.save', 'r') as savetxt:
-                    for line in savetxt:
-                        new_line = line.replace("a," + str(player.id), "d," + str(player.id))
-                        new_text += new_line
-                with open('saveFiles/werwolf.save', 'w') as savetxt:
-                    savetxt.write(new_text)
+                save = json.load(open('saveFiles/gamesave.json'))
+                with open('saveFiles/gamesave.json', 'w') as savefile:
+                    for p in save['Players']:
+                        if p['id'] == player.id:
+                            p['alive'] = False
+                    json.dump(save, savefile)
 
                 playerlist_dead.append(player)
                 playerlist_alive.remove(player)
@@ -449,19 +489,45 @@ def kill(update, context):  # Command for narrator to kill a player
 
 
 def good_morning(update, context):  # starts the day/ ends the night
-    if check_for_group(update):  # and check_for_narrator(update):
+    if check_for_group(update) and check_for_narrator(update):
         for player in playerlist_alive:
             context.bot.restrict_chat_member(gamechat_id, player.id,
                                              ChatPermissions(can_send_messages=True, can_send_media_messages=True,
                                                              can_send_other_messages=True))
+            player.silence_counter += 1
+            save = json.load(open('saveFiles/gamesave.json'))
+            with open('saveFiles/gamesave.json', 'w') as savefile:
+                for p in save['Players']:
+                    p['silence_counter'] += 0
+                json.dump(save, savefile)
         update.effective_chat.send_message("Good Morning!")
 
 
 def good_night(update, context):  # ends the day/ starts the night
-    if check_for_group(update):  # and check_for_narrator(update):
+    if check_for_group(update) and check_for_narrator(update):
         for player in playerlist_alive:
             context.bot.restrict_chat_member(gamechat_id, player.id, ChatPermissions(can_send_messages=False))
+            if player.silence_counter == 1:
+                context.bot.send_message(chat_id=player.id, text="You didn't write anything today. Make sure to be active tomorrow, otherwise I gotta snitch to the narrator that you have to die and nobody wants that.")
+                narratorlog(context, player.name + " didn't write anything today.")
+            elif player.silence_counter >= 2:
+                narratorlog(context, player.name + " was not active for multiple days. Do with that info what you want.")
         update.effective_chat.send_message("Good Night!")
+
+
+def two_day_rule(update, context):  # sets players 'silence_counter' to zero if they write something
+    if update.effective_chat.id == gamechat_id:
+        for player in playerlist_alive:
+            if player.id == update.message.from_user.id:
+                if player.silence_counter >= 0:
+                    player.silence_counter = 0
+                    save = json.load(open('saveFiles/gamesave.json'))
+                    with open('saveFiles/gamesave.json', 'w') as savefile:
+                        for p in save['Players']:
+                            if player.id == p['id']:
+                                p['silence_counter'] = 0
+                        json.dump(save, savefile)
+
 
 
 def reset(update, context):
@@ -473,7 +539,14 @@ def reset(update, context):
             context.bot.restrict_chat_member(gamechat_id, player.id,
                                              ChatPermissions(can_send_messages=True, can_send_media_messages=True,
                                                              can_send_other_messages=True))
-        open('saveFiles/werwolf.save', 'w').close()
+        with open('saveFiles/gamesave.json', 'w') as newfile:
+            blank_json = {
+                'Narrator': None,
+                'Gamechat': None,
+                'Loading': False,
+                'Players': []
+            }
+            json.dump(blank_json, newfile)
         gamechat_id = None
         global narrator_id
         narrator_id = None

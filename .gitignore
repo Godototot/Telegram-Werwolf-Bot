@@ -132,4 +132,4 @@ dmypy.json
 .idea/
 
 # save_output
-*.save
+gamesave.json

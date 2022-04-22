@@ -3,6 +3,7 @@ import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from os.path import exists
 from dotenv import load_dotenv
+import json
 
 from commands import *
 from Player import *
@@ -22,48 +23,42 @@ def main():
     updater.idle()
 
 
-def load_save_file():  # read in save.txt in case the bot shut down
-
-    if not exists('saveFiles/werwolf.save'):
+def load_save_file():  # read in save.json in case the bot shut down
+    if not exists('saveFiles/gamesave.json'):
         if not exists('saveFiles'):
             os.mkdir("saveFiles")
-        open('saveFiles/werwolf.save', 'x')
-        logger.info("Created save file")
+        with open('saveFiles/gamesave.json', 'w') as newfile:
+            blank_json = {
+                'Narrator': None,
+                'Gamechat': None,
+                'Loading': False,
+                'Players': []
+            }
+            json.dump(blank_json, newfile)
+
+        logger.info("created savefile")
         return
 
     logger.info("Savefile exists")
-    with open('saveFiles/werwolf.save', 'r') as savetxt:
-        lines = savetxt.readlines()
-    for l in range(len(lines)):
-        lines[l] = lines[l].replace('\n', '')
-    if len(lines) > 0:
-        set_narrator_id(int(lines[0]))
+    save = json.load(open('saveFiles/gamesave.json'))
+    if save['Narrator']:
+        set_narrator_id(save['Narrator'])
         logger.info("Added narrator again")
-    if len(lines) > 1:
-        set_gamechat_id(int(lines[1]))
-        logger.info("Added gamechat again")
-    if len(lines) > 2:
-        logger.info(lines[2])
-        if lines[2] == 'joining':
-            set_joining_again()
-            for i in range(3, len(lines)):
-                cut_line = lines[i].split(',')
-                p = Player(int(cut_line[0]), cut_line[1], None)
-                playerlist_alive.append(p)
-                logger.info("Added " + p.name + " back to the joining list")
-
-        else:
-            for i in range(2, len(lines)):
-                cut_line = lines[i].split(',')
-                p = Player(int(cut_line[1]), int(cut_line[2]), cut_line[3])
-                if len(cut_line) > 5:
-                    p.special_role = cut_line[5]
-                if cut_line[0] == 'a':
-                    playerlist_alive.append(p)
-                    logger.info("Added " + p.name + " back to the game alive.")
-                else:
-                    playerlist_dead.append(p)
-                    logger.info("Added " + p.name + " back to the game dead.")
+        if save['Gamechat']:
+            set_gamechat_id(save['Gamechat'])
+            logger.info("Added gamechat again")
+            if save['Joining']:
+                set_joining_again()
+                logger.info("Set joining again")
+            if save['Players']:
+                for p in save['Players']:
+                    new_p = Player(p['id'], p['name'], p['pronouns'], p['role'], p['special_role'], p['silence_counter'])
+                    if p['alive']:
+                        playerlist_alive.append(new_p)
+                        logger.info("Added " + new_p.name + " back to the game alive.")
+                    else:
+                        playerlist_dead.append(new_p)
+                        logger.info("Added " + new_p.name + " back to the game dead.")
 
 
 def setup_handlers(dispatcher):
@@ -89,7 +84,9 @@ def setup_handlers(dispatcher):
             entry_points=[CommandHandler('join', join)],
             states={
                 0: [MessageHandler(Filters.text & (~Filters.command), join_name)],
-                1: [MessageHandler(Filters.text & (~Filters.command), join_name_re)]
+                1: [MessageHandler(Filters.text & (~Filters.command), join_name_re)],
+                2: [MessageHandler(Filters.text & (~Filters.command), join_pronouns)],
+                3: [MessageHandler(Filters.text & (~Filters.command), join_pronouns_re)],
             },
             fallbacks=[CommandHandler('cancel', join_cancel)]
         )
@@ -105,6 +102,7 @@ def setup_handlers(dispatcher):
         )
     )
     dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command) & Filters.chat_type.private, vote_answer))
+    dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command) & Filters.chat_type.supergroup, two_day_rule))
 
 
 if __name__ == '__main__':
