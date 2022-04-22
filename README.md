@@ -40,7 +40,8 @@ To work properly the bot has to be an Admin in the group he is added to.
 ### General
 <ul>
   <li><strong>start</strong> : first interaction with the bot. They greet you</li>
-  <li><strong>list_players</strong> : returns list all players, sorted in "alive" and "dead"
+  <li><strong>list_players</strong> : returns list of all players, sorted in "alive" and "dead"
+<li><strong>list_roles</strong> : returns list of all roles that are used in this game
   <li><strong>rules [rolename] </strong> : prints either all rules or the description of a specific role</li>
 </ul>
 

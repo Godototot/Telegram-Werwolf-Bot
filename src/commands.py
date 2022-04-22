@@ -238,6 +238,17 @@ def list_players(update, context):  # lists all living and dead players
         players_out += player.name + ' (' + player.pronouns + ')' + " - " + player.role + '\n'
     update.effective_chat.send_message(text=players_out)
 
+def list_roles(update, context):  # lists all roles that are in the game
+    rolefile = json.load(open('../config/roles.json'))
+    roles_out = "**Roles** \n"
+    for r in rolefile['Roles']:
+        if list([x for x in playerlist_alive if x.role == r['name']]) or list([x for x in playerlist_dead if x.role == r['name']]):
+            roles_out += r['name'] + '\n'
+    roles_out += "**Special Roles** \n"
+    for s in rolefile['SpecialRoles']:
+        if list([x for x in playerlist_alive if x.special_role == s['name']]) or list([x for x in playerlist_dead if x.special_role == s['name']]):
+            roles_out += s['name'] + '\n'
+
 
 def reshape(arr, cols):
     rows = ceil(len(arr) / cols)

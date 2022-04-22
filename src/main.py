@@ -69,6 +69,7 @@ def setup_handlers(dispatcher):
     dispatcher.add_handler(CommandHandler('end_join', end_join))
     dispatcher.add_handler(CommandHandler('n_join', n_join))
     dispatcher.add_handler(CommandHandler('list_players', list_players))
+    dispatcher.add_handler(CommandHandler('list_roles', list_roles))
     dispatcher.add_handler(CommandHandler('distr_roles', distr_roles))
     dispatcher.add_handler(CommandHandler('vote', vote))
     dispatcher.add_handler(CommandHandler('change_vote', change_vote))
