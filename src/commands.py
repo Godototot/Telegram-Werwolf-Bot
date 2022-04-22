@@ -560,18 +560,20 @@ def rules(update, context): # to ask the bot for either all or specific rules
         else:
             update.effective_chat.send_message(text="This role is not used in this game.")
     else:
-        all_rules = rulesfile['General'] + "\n\n\nChats:\n\n"
+        all_rules_gen = rulesfile['General'] + "\n\n\nChats:\n\n"
         for chat in rulesfile['Chats']:
-            all_rules += chat['name'] + ": " + chat['description'] + '\n\n'
-        all_rules += "\n\n\nRollen: \n\n"
+            all_rules_gen += chat['name'] + ": " + chat['description'] + '\n\n'
+
+        all_rules_rol = "\n\n\nRollen: \n\n"
         for r in rolefile['Roles']:
             if list([x for x in playerlist_alive if x.role == r['name']]) or list([x for x in playerlist_dead if x.role == r['name']]):
-                all_rules += r['name'] + '\n' + r['description'] + "\n\n"
-        all_rules += "\n\n\nSpezialrollen: \n\n"
+                all_rules_rol += r['name'] + '\n' + r['description'] + "\n\n"
+        all_rules_rol += "\n\n\nSpezialrollen: \n\n"
         for s in rolefile['SpecialRoles']:
             if list([x for x in playerlist_alive if x.special_role == s['name']]) or list([x for x in playerlist_dead if x.special_role == s['name']]):
-                all_rules += s['name'] + '\n' + s['description'] + "\n\n"
-        update.effective_chat.send_message(text=all_rules)
+                all_rules_rol += s['name'] + '\n' + s['description'] + "\n\n"
+        update.effective_chat.send_message(text=all_rules_gen)
+        update.effective_chat.send_message(text=all_rules_rol)
 
 
 def reset(update, context):
