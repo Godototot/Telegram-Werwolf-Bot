@@ -76,6 +76,7 @@ def setup_handlers(dispatcher):
     dispatcher.add_handler(CommandHandler('kill', kill))
     dispatcher.add_handler(CommandHandler('good_morning', good_morning))
     dispatcher.add_handler(CommandHandler('good_night', good_night))
+    dispatcher.add_handler(CommandHandler('rules', rules))
     dispatcher.add_handler(CommandHandler('reset', reset))
 
     # specialHandlers

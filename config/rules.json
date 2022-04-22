@@ -1,5 +1,5 @@
 {
-	"General": "",
+	"General": "Alle durchlesen, auch wenn es etwas lang ist:\n **Grundregeln**\nDer Spielort ist ein fiktives Dorf, in dem eine Werwolfsepidemie ausgebrochen ist.\nEs gibt grundsätzlich zwei Parteien: die Dorfbewohner und die Werwölfe.\nDie Aufgabe der Dorfbewohner ist es, die Werwölfe, deren Identität sie nicht kennen, zu entlarven und auszurotten.\nDafür gibt es am Tag eine Abstimmung. Dabei einigt sich das Dorf jeden Tag auf 1-3 Nominierte. Die Abstimmung selbst läuft dann über Privatchat mit mir (Werwolf-Bot). Nach der Abstimmzeit verkünde ich in diesem Chat, wer für wen gestimmt hat. Die Person mit den meisten Stimmen kann noch bis 1h nach der Verkündung letzte Worte sprechen, stirbt und ihre Rolle wird offenbart. Es ist nicht erlaubt sich zu enthalten!\nDie Aufgabe der Werwölfe ist es, alle Dorfbewohner zu töten, bevor sie selbst getötet werden. \nDafür können sie sich jede Nacht, wenn das Dorf schläft, beraten und sich auf ein Opfer einigen, welches sie in dieser Nacht fressen werden. Falls sie sich nicht einig werden (keine Mehrheit existiert) stirbt niemand.\nDanach haben noch bestimmte Sonderrollen Zeit für Aktionen. \nAm Morgen verkündet der Erzaehler in diesem Chat, wer gestorben ist und welche Rolle diese Person hatte.\n 2-Tage-Regel: Wer einen Tag nichts in den Dorfchat schreibt wird von mir verwarnt und wer 2 Tage hinereinander nichts schreibt wird (nach Beurteilung des Erzaehlers) mit dem Tod bestraft! \nBevor ihr in den Chat schreibt, schaut nach, ob ich oder der Erzaehler euch irgendetwas im PC geschrieben haben!\nAlle Absprachen finden nur in den dazu vorgesehenen Zeiten und den vorgesehenen Gruppen statt!\nEs ist verboten die eigene Rolle in diesen Chat zu schreiben. Es ist jedoch erlaubt Anspielungen zu machen. Diese dürfen auch gelogen sein.\nEs ist verboten Screenshots in diese Gruppe zu schicken!\nIm Zweifelsfall einfach beim Erzaehler nachfragen, ob es erlaubt ist. \n\n\nZeiten:\n\nBekanntmachung des Opfers der Nacht: ca. 10:00- 11:00 (Oder später, wenn der Erzaehler wieder mal verschlaeft :P)\nDiskussionszeit Dorf: ab der Bekanntmachung – 19:00 (Nominierung um 18:00)\nAbstimmungszeit: 18:00 – 19:00\nVeröffentlichung der Abstimmung: 19:00\n(Nach der Veröffentlichung darf nur mehr der/die Todgeweihte seine letzten Worte sprechen. Kein anderer darf dann schreiben!!!)\nNacht (Duskussionszeit der Werwölfe + Sonderrollen): 19:30 – 9:30 \n\n Wenn ihr die Regeln nochmal braucht, koennt ihr sie jederzeit mit '/rules' oder rollen-spezifisch mit '/rule <Rollenname>' abfragen.",
 	"Chats": [
 		{
 			"id": 0,
@@ -9,7 +9,7 @@
 		},
 		{
 			"id": 1,
-			"name": "friedhof",
+			"name": "Friedhof",
 			"description": "In den Friedhof kommen SpielerInnen, nachdem sie gestorben sind. Hier darf Tag und Nacht geschrieben werden.",
 			"active": "always"
 		},
@@ -22,7 +22,7 @@
 		{
 			"id": 3,
 			"name": "Liebesnest",
-			"description": "Im Liebesnest koennen sich die zwei Personen, die von Amors Liebespfeil getroffen worden absprechen. Der Chat es Tag und Nacht aktiv.",
+			"description": "Im Liebesnest koennen sich die zwei Personen, die von Amors Liebespfeil getroffen wurden absprechen. Der Chat es Tag und Nacht aktiv.",
 			"active": "night"
 		}
 	]

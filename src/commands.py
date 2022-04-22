@@ -206,7 +206,7 @@ def join_pronouns_re(update, context) -> int:
             if player.id == update.effective_chat.id:
                 save = json.load(open('saveFiles/gamesave.json'))
                 with open('saveFiles/gamesave.json', 'w') as savefile:
-                    p_dict = {'id': player.id, 'name': player.name, 'pronouns': player.pronouns, 'role': None, 'special_role': None, 'silence_cunter': 0, 'alive': True}
+                    p_dict = {'id': player.id, 'name': player.name, 'pronouns': player.pronouns, 'role': None, 'special_role': None, 'silence_counter': 0, 'alive': True}
                     save['Players'].append(p_dict)
                     json.dump(save, savefile)
                 narratorlog(context, player.name + ' (' + player.pronouns + ") joined the game")
@@ -528,6 +528,37 @@ def two_day_rule(update, context):  # sets players 'silence_counter' to zero if 
                                 p['silence_counter'] = 0
                         json.dump(save, savefile)
 
+
+def rules(update, context): # to ask the bot for either all or specific rules
+    rolefile = json.load(open('../config/roles.json'))
+    rulesfile = json.load(open('../config/rules.json'))
+    if context.args:
+        role = context.args[0]
+        if list([x for x in playerlist_alive if x.role == role or x.special_role == role]) or list([x for x in playerlist_dead if x.role == role or x.special_role == role]):
+            for r in rolefile['Roles']:
+                if r['name'] == role:
+                    update.effective_chat.send_message(text=r['description'])
+                    return
+            for s in rolefile['SpecialRoles']:
+                if s['name'] == role:
+                    update.effective_chat.send_message(text=s['description'])
+                    return
+            update.effective_chat.send_message(text="No description for this role found.")
+        else:
+            update.effective_chat.send_message(text="This role is not used in this game.")
+    else:
+        all_rules = rulesfile['General'] + "\n\n\nChats:\n\n"
+        for chat in rulesfile['Chats']:
+            all_rules += chat['name'] + ": " + chat['description'] + '\n\n'
+        all_rules += "\n\n\nRollen: \n\n"
+        for r in rolefile['Roles']:
+            if list([x for x in playerlist_alive if x.role == r['name']]) or list([x for x in playerlist_dead if x.role == r['name']]):
+                all_rules += r['name'] + '\n' + r['description'] + "\n\n"
+        all_rules += "\n\n\nSpezialrollen: \n\n"
+        for s in rolefile['SpecialRoles']:
+            if list([x for x in playerlist_alive if x.special_role == s['name']]) or list([x for x in playerlist_dead if x.special_role == s['name']]):
+                all_rules += s['name'] + '\n' + s['description'] + "\n\n"
+        update.effective_chat.send_message(text=all_rules)
 
 
 def reset(update, context):
