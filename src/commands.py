@@ -26,7 +26,7 @@ vote_process = 0  # keeping track of vote process
 def narratorlog(context, log):
     global narrator_id
     if narrator_id:
-        context.bot.send_message(chat_id=narrator_id, text=log)
+        context.bot.send_message(chat_id=narrator_id, text="LOG: " +log)
 
 
 def set_narrator_id(n_id):
@@ -298,7 +298,7 @@ def choose_roles(update, context) -> int:
                     text="All roles have been chosen. Do you want to add any special roles? (Type 'end' if you are finished)",
                     reply_markup=ReplyKeyboardMarkup(sroles_keyboard))
                 return 1
-            update.effective_chat.send_message(text="There are " + str(len(playerlist_alive)) + "roles left  to choose. (Type '/cancel' to cancel.) \n The current chosen roles are: \n" + '\n'.join(role_list))
+            update.effective_chat.send_message(text="There are " + str(len(playerlist_alive) - len(role_list)) + " roles left  to choose. (Type '/cancel' to cancel.) \n The current chosen roles are: \n" + '\n'.join(role_list))
             return 1
         else:
             update.effective_chat.send_message(text="I do not know this role. Choose a different one.")
@@ -396,8 +396,8 @@ def vote_answer(update, context):  # collects the answer of the votes
                     vote_process += 1
                     if vote_process == ceil(len(playerlist_alive)/2) or vote_process == len(playerlist_alive)-1:
                         context.bot.send_message(chat_id=gamechat_id, text="Vote process: " + str(vote_process) + '/' + str(len(playerlist_alive)))
-                    narratorlog(context, player.name + "voted for" + update.message.text)
-                    logger.info(player.name + "has voted")
+                    narratorlog(context, player.name + " voted for " + update.message.text)
+                    logger.info(player.name + " has voted")
                     return
                 else:
                     update.effective_chat.send_message(text="Please vote for one of the accused players.",
@@ -484,7 +484,7 @@ def kill(update, context):  # Command for narrator to kill a player
                 if player.role is not None:
                     o += player.role + "!"
                 update.effective_chat.send_message(o)
-                narratorlog(context, player.name + "killed.")
+                narratorlog(context, player.name + " killed.")
                 logger.info(player.name + " killed.")
 
                 # changing save-file
