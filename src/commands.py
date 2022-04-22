@@ -206,7 +206,7 @@ def join_pronouns_re(update, context) -> int:
             if player.id == update.effective_chat.id:
                 save = json.load(open('saveFiles/gamesave.json'))
                 with open('saveFiles/gamesave.json', 'w') as savefile:
-                    p_dict = {'id': player.id, 'name': player.name, 'pronouns': player.pronouns, 'role': None, 'special_role': None, 'alive': True}
+                    p_dict = {'id': player.id, 'name': player.name, 'pronouns': player.pronouns, 'role': None, 'special_role': None, 'silence_cunter': 0, 'alive': True}
                     save['Players'].append(p_dict)
                     json.dump(save, savefile)
                 narratorlog(context, player.name + ' (' + player.pronouns + ") joined the game")
@@ -489,19 +489,45 @@ def kill(update, context):  # Command for narrator to kill a player
 
 
 def good_morning(update, context):  # starts the day/ ends the night
-    if check_for_group(update):  # and check_for_narrator(update):
+    if check_for_group(update) and check_for_narrator(update):
         for player in playerlist_alive:
             context.bot.restrict_chat_member(gamechat_id, player.id,
                                              ChatPermissions(can_send_messages=True, can_send_media_messages=True,
                                                              can_send_other_messages=True))
+            player.silence_counter += 1
+            save = json.load(open('saveFiles/gamesave.json'))
+            with open('saveFiles/gamesave.json', 'w') as savefile:
+                for p in save['Players']:
+                    p['silence_counter'] += 0
+                json.dump(save, savefile)
         update.effective_chat.send_message("Good Morning!")
 
 
 def good_night(update, context):  # ends the day/ starts the night
-    if check_for_group(update):  # and check_for_narrator(update):
+    if check_for_group(update) and check_for_narrator(update):
         for player in playerlist_alive:
             context.bot.restrict_chat_member(gamechat_id, player.id, ChatPermissions(can_send_messages=False))
+            if player.silence_counter == 1:
+                context.bot.send_message(chat_id=player.id, text="You didn't write anything today. Make sure to be active tomorrow, otherwise I gotta snitch to the narrator that you have to die and nobody wants that.")
+                narratorlog(context, player.name + " didn't write anything today.")
+            elif player.silence_counter >= 2:
+                narratorlog(context, player.name + " was not active for multiple days. Do with that info what you want.")
         update.effective_chat.send_message("Good Night!")
+
+
+def two_day_rule(update, context):  # sets players 'silence_counter' to zero if they write something
+    if update.effective_chat.id == gamechat_id:
+        for player in playerlist_alive:
+            if player.id == update.message.from_user.id:
+                if player.silence_counter >= 0:
+                    player.silence_counter = 0
+                    save = json.load(open('saveFiles/gamesave.json'))
+                    with open('saveFiles/gamesave.json', 'w') as savefile:
+                        for p in save['Players']:
+                            if player.id == p['id']:
+                                p['silence_counter'] = 0
+                        json.dump(save, savefile)
+
 
 
 def reset(update, context):

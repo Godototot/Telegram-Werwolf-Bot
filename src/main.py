@@ -52,7 +52,7 @@ def load_save_file():  # read in save.json in case the bot shut down
                 logger.info("Set joining again")
             if save['Players']:
                 for p in save['Players']:
-                    new_p = Player(p['id'], p['name'], p['pronouns'], p['role'], p['special_role'])
+                    new_p = Player(p['id'], p['name'], p['pronouns'], p['role'], p['special_role'], p['silence_counter'])
                     if p['alive']:
                         playerlist_alive.append(new_p)
                         logger.info("Added " + new_p.name + " back to the game alive.")
@@ -102,6 +102,7 @@ def setup_handlers(dispatcher):
         )
     )
     dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command) & Filters.chat_type.private, vote_answer))
+    dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command) & Filters.chat_type.supergroup, two_day_rule))
 
 
 if __name__ == '__main__':

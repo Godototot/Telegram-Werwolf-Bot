@@ -1,11 +1,12 @@
 class Player:
 
-    def __init__(self, player_id, player_name, pronouns, role, special_role):
+    def __init__(self, player_id, player_name, pronouns, role, special_role, silence_counter=0):
         self.id = player_id
         self.name = player_name
         self.pronouns = pronouns
         self.role = role
         self.special_role = special_role
+        self.silence_counter = silence_counter
         self.vote = None
 
     def print(self) -> str:
