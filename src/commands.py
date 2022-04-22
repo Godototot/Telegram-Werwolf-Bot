@@ -235,7 +235,7 @@ def list_players(update, context):  # lists all living and dead players
         players_out += player.name + ' (' + player.pronouns + ')' + '\n'
     players_out += "\n ****Dead**** \n"
     for player in playerlist_dead:
-        players_out += player.name + ' (' + player.pronouns + ')' + '\n'
+        players_out += player.name + ' (' + player.pronouns + ')' + " - " + player.role + '\n'
     update.effective_chat.send_message(text=players_out)
 
 
