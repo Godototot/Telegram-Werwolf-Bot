@@ -1,3 +1,5 @@
+from itertools import count
+import string
 from telegram import ReplyKeyboardMarkup, ReplyKeyboardRemove, ChatPermissions
 from telegram.ext import ConversationHandler
 import random
@@ -572,9 +574,52 @@ def rules(update, context): # to ask the bot for either all or specific rules
         for s in rolefile['SpecialRoles']:
             if list([x for x in playerlist_alive if x.special_role == s['name']]) or list([x for x in playerlist_dead if x.special_role == s['name']]):
                 all_rules_rol += s['name'] + '\n' + s['description'] + "\n\n"
-        update.effective_chat.send_message(text=all_rules_gen)
-        update.effective_chat.send_message(text=all_rules_rol)
+        
+        for message  in split_messages(all_rules_gen, 4096):
+            update.effective_chat.send_message(text=message)
+            
+        for message  in split_messages(all_rules_rol, 4096):
+            update.effective_chat.send_message(text=message)
 
+"""
+Returns an Array of Strings that shorter of Max Length
+It tries to structure the String Arrays in sentence.
+If that is not possible (sentence is longer than max string),
+the sentence will be split into two strings at a space.
+If that's also not possible, the sentence will be split at an ideal position
+"""
+def split_messages(message, max_length):
+    message_array = []
+    if len(message) > max_length: # Chek if text is to long
+        message = ""
+        for sentence in message.split("."): # split into sentence
+            sentence = sentence + "."
+            if len(sentence) < max_length: # Check sentence short enough
+                if len(message) + len(sentence) < max_length: # Check sentence plus previous short enough
+                    message = message + sentence
+                else: # create two messages
+                    message_array.append(message)
+                    message = sentence
+            else: # split by individual words
+                for word in sentence.split(" "):
+                    word = word + " "
+                    if len(word) < max_length: # Check word short enough
+                        if len(message + word) < max_length: # Check if sentence word combi fits
+                            message = message + word
+                        else: # create two messages
+                            message_array.append(message)
+                            message = word
+                    else:
+                        for symbol in word.split():
+                            # if symbol is to long the input is 0 -> reduce the fucks given about that also to 0
+                            if len(message+symbol) < max_length: # check for word symbol combi
+                                message = message + symbol
+                            else: # create two messages
+                                message_array.append(message)
+                                message = symbol
+    else:
+        message_array.append(message)
+    return message_array
 
 def reset(update, context):
     if check_for_narrator(update):

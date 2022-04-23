@@ -1,4 +1,5 @@
 import os
+from pickle import TRUE
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 from os.path import exists
@@ -15,10 +16,14 @@ logger = logging.getLogger(__name__)
 def main():
     load_dotenv('../config/.env')
     load_save_file()
-    updater = Updater(os.environ.get("BOT_KEY"), use_context=True)
+    bot_key = os.environ.get("BOT_KEY")
+
+    updater = Updater(bot_key, use_context=True)
     dispatcher = updater.dispatcher
     setup_handlers(dispatcher)
     updater.start_polling()
+
+    print("[Felix] Bot is now running")
 
     updater.idle()
 
@@ -108,4 +113,12 @@ def setup_handlers(dispatcher):
 
 
 if __name__ == '__main__':
-    main()
+    """Make coode Loopable on Error"""
+    while TRUE:
+        try:
+            main()
+        except Exception as e:
+            print(e)
+        if input("Press r to restart or any key to exit") == "r":
+            continue
+        break
